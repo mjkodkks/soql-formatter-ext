@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOQL Formatter</title>
+  <style>
+    /* ─── Design tokens ─────────────────────────── */
+    :root {
+      --bg:        #0f1117;
+      --surface:   #161b27;
+      --surface2:  #1e2535;
+      --border:    #2a3347;
+      --accent:    #00c2ff;
+      --accent2:   #7b61ff;
+      --green:     #3effa3;
+      --red:       #ff5f6d;
+      --text:      #e4eaf5;
+      --muted:     #6b7a99;
+      --keyword:   #7b61ff;
+      --string:    #3effa3;
+      --number:    #ffb347;
+      --field:     #e4eaf5;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --sans: 'Inter', system-ui, sans-serif;
+      --radius: 8px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 640px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+
+    /* ─── Header ─────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      flex: 1;
+    }
+
+    .header-title h1 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .header-title p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent2)33, var(--accent)33);
+      border: 1px solid var(--accent2)66;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ─── Main layout ────────────────────────────── */
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ─── Panel ──────────────────────────────────── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-label span {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .copy-btn {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--sans);
+      letter-spacing: 0.04em;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .copy-btn.copied {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      background: var(--bg);
+      border: none;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      padding: 12px 14px;
+      outline: none;
+      caret-color: var(--accent);
+    }
+
+    textarea::placeholder {
+      color: var(--muted);
+    }
+
+    /* ─── Divider / action area ──────────────────── */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .format-btn {
+      flex: 1;
+      height: 34px;
+      border-radius: var(--radius);
+      border: none;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .format-btn:hover { opacity: 0.9; }
+    .format-btn:active { transform: scale(0.98); }
+
+    .options {
+      display: flex;
+      gap: 6px;
+    }
+
+    .opt-btn {
+      height: 34px;
+      padding: 0 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .opt-btn:hover {
+      border-color: var(--accent2);
+      color: var(--text);
+    }
+
+    .opt-btn.active {
+      border-color: var(--accent2);
+      color: var(--accent);
+      background: var(--accent2)22;
+    }
+
+    /* ─── Output ──────────────────────────────────── */
+    .output-wrap {
+      position: relative;
+      min-height: 150px;
+    }
+
+    .output {
+      width: 100%;
+      min-height: 150px;
+      background: var(--bg);
+      padding: 12px 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+      border: none;
+    }
+
+    /* Syntax highlighting in output */
+    .kw   { color: var(--keyword); font-weight: 600; }
+    .str  { color: var(--string); }
+    .num  { color: var(--number); }
+    .op   { color: var(--muted); }
+    .field { color: var(--field); }
+
+    /* ─── Empty state ────────────────────────────── */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+      color: var(--muted);
+      gap: 6px;
+    }
+
+    .empty-icon { font-size: 28px; opacity: 0.4; }
+    .empty p { font-size: 11px; }
+
+    /* ─── Error ──────────────────────────────────── */
+    .error-msg {
+      padding: 8px 14px;
+      background: var(--red)11;
+      border-top: 1px solid var(--red)44;
+      color: var(--red);
+      font-size: 11px;
+      display: none;
+    }
+
+    /* ─── Wrap toggle ─────────────────────────────── */
+    .apex-wrap {
+      padding: 8px 14px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 30px;
+      height: 16px;
+    }
+
+    .toggle input { display: none; }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 99px;
+      background: var(--border);
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: var(--accent2);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      pointer-events: none;
+    }
+
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(14px);
+    }
+
+    .toggle-label {
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ─── Footer ──────────────────────────────────── */
+    .footer {
+      padding: 7px 14px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer p {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .kbd {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">⚡</div>
+  <div class="header-title">
+    <h1>SOQL Formatter</h1>
+    <p>Salesforce query prettifier</p>
+  </div>
+  <span class="badge">v1.0</span>
+</div>
+
+<div class="main">
+
+  <!-- Input panel -->
+  <div class="panel">
+    <div class="panel-label">
+      <span>Input SOQL</span>
+      <button class="copy-btn" id="clearBtn">Clear</button>
+    </div>
+    <textarea
+      id="inputArea"
+      placeholder="SELECT Id, Name, Phone FROM Account WHERE Industry = 'Technology' LIMIT 10"
+      spellcheck="false"
+    ></textarea>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <button class="format-btn" id="formatBtn">
+      <span>⚡</span> Format SOQL
+    </button>
+
+    <div class="options">
+      <button class="opt-btn active" id="optUppercase" title="Uppercase keywords">ABC</button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Output panel -->
+  <div class="panel">
+    <div class="panel-label">
+      <span>Formatted Output</span>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+    </div>
+    <div class="output-wrap">
+      <div class="output" id="outputArea">
+        <div class="empty">
+          <div class="empty-icon">🔍</div>
+          <p>Paste a SOQL query above and click Format</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Apex wrap toggle -->
+  <div class="apex-wrap">
+    <label class="toggle">
+      <input type="checkbox" id="apexToggle" />
+      <div class="toggle-track"></div>
+      <div class="toggle-thumb"></div>
+    </label>
+    <label class="toggle-label" for="apexToggle">Wrap in Apex List query</label>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>Tip: <span class="kbd">Ctrl+Enter</span> to format quickly</p>
+  <p style="color: var(--muted)">Supports SOQL clauses & WHERE conditions</p>
+</div>
+
+<script src="src/formatter.js"></script>
+<script src="src/popup.js"></script>
+</body>
+</html>
