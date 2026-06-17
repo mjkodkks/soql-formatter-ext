@@ -1,0 +1,37 @@
+# --- Chrome Extension Specifics ---
+# Compressed packages ready for Web Store upload
+*.zip
+*.crx
+
+# --- Build & Bundling Outputs ---
+# For extensions built with Webpack, Vite, Vite+CRXJS, or Rsbuild
+dist/
+build/
+out/
+
+# --- Node / JavaScript Dependencies ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# --- Environment & Secret Keys ---
+# Never commit your API keys or production manifest overrides
+.env
+.env.local
+.env.*.local
+
+# --- Operating System Artifacts ---
+.DS_Store
+Thumbs.db
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
