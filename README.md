@@ -1,5 +1,7 @@
 # ⚡ SOQL Formatter — Chrome Extension
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+
 Format & prettify Salesforce SOQL queries with a clean vertical style.
 
 ## Installation
@@ -50,5 +52,11 @@ LIMIT 10
 ## Supported Clauses
 
 `SELECT` · `FROM` · `WHERE` · `ORDER BY` · `GROUP BY` · `HAVING` · `LIMIT` · `OFFSET` · `WITH SECURITY_ENFORCED` · `FOR VIEW/UPDATE`
+
+## License
+
+MIT © 2026 DKKs
+
+---
 
 Make with ❤️ DKKs
