@@ -9,8 +9,8 @@
     "default_title": "SOQL Formatter"
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "favicon/favicon-96x96.png",
+    "48": "favicon/favicon-96x96.png",
+    "128": "favicon/apple-touch-icon.png"
   }
 }
