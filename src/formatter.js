@@ -239,6 +239,7 @@ function splitByLogical(str) {
   const parts = [];
   let depth = 0;
   let current = '';
+  let nextPrefix = '';  // AND/OR prefix for the next condition
   let i = 0;
 
   while (i < str.length) {
@@ -249,21 +250,18 @@ function splitByLogical(str) {
 
     if (depth === 0) {
       if (remaining.startsWith('AND ') || remaining.startsWith('AND(')) {
-        parts.push({ prefix: '', expr: current.trim() });
+        parts.push({ prefix: nextPrefix, expr: current.trim() });
         current = '';
+        nextPrefix = 'AND';
         i += 3;
-        // skip space
         while (i < str.length && str[i] === ' ') i++;
-        parts.push({ prefix: 'AND', expr: '' });
-        current = '';
         continue;
       } else if (remaining.startsWith('OR ') || remaining.startsWith('OR(')) {
-        parts.push({ prefix: '', expr: current.trim() });
+        parts.push({ prefix: nextPrefix, expr: current.trim() });
         current = '';
+        nextPrefix = 'OR';
         i += 2;
         while (i < str.length && str[i] === ' ') i++;
-        parts.push({ prefix: 'OR', expr: '' });
-        current = '';
         continue;
       }
     }
@@ -272,23 +270,13 @@ function splitByLogical(str) {
     i++;
   }
 
+  // Push the last condition
   if (current.trim()) {
-    if (parts.length === 0) {
-      parts.push({ prefix: '', expr: current.trim() });
-    } else {
-      parts[parts.length - 1].expr = current.trim();
-    }
+    parts.push({ prefix: nextPrefix, expr: current.trim() });
   }
 
-  // Merge prefix+expr pairs
-  const merged = [];
-  for (let j = 0; j < parts.length; j++) {
-    if (parts[j].expr !== '') {
-      merged.push(parts[j]);
-    }
-  }
-
-  return merged;
+  // Remove any entries with empty expr (safety net)
+  return parts.filter(p => p.expr !== '');
 }
 
 // Wrap a SOQL query in an Apex-style context
