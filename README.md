@@ -64,12 +64,12 @@ Create a distributable `.zip` file for publishing or sideloading:
 ```
 
 ### Windows
-```bat
+```powershell
 # Run the build script
-build.bat
+.\build.ps1
 ```
 
-Both scripts produce `chrome-extension.zip` in the project root, excluding `.git/`, `node_modules/`, `build.sh`, `build.bat`, `*.zip`, `package.json`, and `package-lock.json`.
+Both scripts produce `chrome-extension.zip` in the project root, excluding `.git/`, `node_modules/`, `build.sh`, `build.ps1`, `*.zip`, `package.json`, and `package-lock.json`.
 
 ## License
 

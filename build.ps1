@@ -1,8 +1,8 @@
-# ประกาศตัวแปร
+# Output file name
 $OUTPUT_ZIP = "chrome-extension.zip"
 
-# สั่ง zip โดยใช้แฟล็ก -r (Recurse) เพื่อรักษาโครงสร้างโฟลเดอร์
-# และใช้แฟล็ก -x (Exclude) ในการกรองไฟล์ออก
+# Create zip with -r (Recurse) to preserve folder structure
+# and -x (Exclude) to filter out unwanted files
 zip -r $OUTPUT_ZIP . `
   -x "*.git*" `
   -x "*.DS_Store*" `
