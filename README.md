@@ -53,6 +53,24 @@ LIMIT 10
 
 `SELECT` · `FROM` · `WHERE` · `ORDER BY` · `GROUP BY` · `HAVING` · `LIMIT` · `OFFSET` · `WITH SECURITY_ENFORCED` · `FOR VIEW/UPDATE`
 
+## Building from source
+
+Create a distributable `.zip` file for publishing or sideloading:
+
+### macOS / Linux
+```bash
+# Run the build script
+./build.sh
+```
+
+### Windows (PowerShell)
+```powershell
+# Run the build script
+.\build.ps1
+```
+
+Both scripts produce `chrome-extension.zip` in the project root, excluding `.git/`, `node_modules/`, `build.sh`, `build.ps1`, `package.json`, and `package-lock.json`.
+
 ## License
 
 MIT © 2026 DKKs
