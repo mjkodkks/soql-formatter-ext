@@ -9,6 +9,7 @@ const errorMsg     = document.getElementById('errorMsg');
 const optUppercase = document.getElementById('optUppercase');
 const apexToggle   = document.getElementById('apexToggle');
 const themeBtn     = document.getElementById('themeBtn');
+const badge        = document.getElementById('versionBadge');
 
 let isUppercase = true;
 let lastFormatted = '';
@@ -54,6 +55,12 @@ window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', ()
 
 // Apply theme on load
 loadTheme();
+
+// Set version from manifest
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+  const manifest = chrome.runtime.getManifest();
+  badge.textContent = 'v' + manifest.version;
+}
 
 // ── Toggle uppercase ─────────────────────────────────
 optUppercase.addEventListener('click', () => {
