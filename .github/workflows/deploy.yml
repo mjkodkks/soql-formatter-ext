@@ -19,7 +19,7 @@ jobs:
           ./build.sh
 
       - name: Upload & Publish Extension
-        uses: browser-actions/release-chrome-extension@v3
+        uses: browser-actions/release-chrome-extension@v0.2.1
         with:
           extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
           extension-path: ./chrome-extension.zip
